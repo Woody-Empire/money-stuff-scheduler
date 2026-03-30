@@ -1,0 +1,8 @@
+services:
+  scheduler:
+    build: .
+    image: money-stuff-scheduler
+    container_name: money-stuff-scheduler
+    restart: always
+    env_file:
+      - .env
