@@ -30,6 +30,7 @@ if __name__ == "__main__":
             lambda: asyncio.run(run()),
             CronTrigger(hour=9, minute=30),
             id="money_stuff_daily",
+            name="money-stuff-daily-job"
         )
         logger.info("定时任务已启动，每天北京时间 09:30 执行")
         try:
