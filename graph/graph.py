@@ -4,7 +4,7 @@ from graph.nodes import (
     convert_to_html,
     extract_things_happen,
     fetch_rss,
-    send_email,
+    publish_to_pages,
     translate_body,
     translate_things_happen,
 )
@@ -17,7 +17,7 @@ graph.add_node("extract_things_happen", extract_things_happen)
 graph.add_node("translate_things_happen", translate_things_happen)
 graph.add_node("translate_body", translate_body)
 graph.add_node("convert_to_html", convert_to_html)
-graph.add_node("send_email", send_email)
+graph.add_node("publish_to_pages", publish_to_pages)
 
 graph.add_edge(START, "fetch_rss")
 graph.add_edge("fetch_rss", "extract_things_happen")
@@ -27,7 +27,7 @@ graph.add_edge("extract_things_happen", "translate_body")
 # Fan-in: wait for both translations before converting
 graph.add_edge("translate_things_happen", "convert_to_html")
 graph.add_edge("translate_body", "convert_to_html")
-graph.add_edge("convert_to_html", "send_email")
-graph.add_edge("send_email", END)
+graph.add_edge("convert_to_html", "publish_to_pages")
+graph.add_edge("publish_to_pages", END)
 
 money_stuff_app = graph.compile()

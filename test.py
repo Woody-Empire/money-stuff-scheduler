@@ -26,10 +26,10 @@ if __name__ == "__main__":
     scheduler = BlockingScheduler(timezone="Asia/Shanghai")
     scheduler.add_job(
         lambda: asyncio.run(run()),
-        CronTrigger(hour=17, minute=48),
+        CronTrigger(hour=18, minute=34),
         id="test_money_stuff",
     )
-    logger.info("测试定时任务已启动，北京时间 17:50 执行")
+    logger.info("测试定时任务已启动，北京时间 18:34 执行")
     try:
         scheduler.start()
     except (KeyboardInterrupt, SystemExit):

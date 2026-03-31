@@ -3,7 +3,7 @@ from graph.nodes.extract_things_happen import extract_things_happen
 from graph.nodes.translate_things_happen import translate_things_happen
 from graph.nodes.translate_body import translate_body
 from graph.nodes.convert_to_html import convert_to_html
-from graph.nodes.send_email import send_email
+from graph.nodes.publish_to_pages import publish_to_pages
 
 __all__ = [
     "fetch_rss",
@@ -11,5 +11,5 @@ __all__ = [
     "translate_things_happen",
     "translate_body",
     "convert_to_html",
-    "send_email",
+    "publish_to_pages",
 ]
