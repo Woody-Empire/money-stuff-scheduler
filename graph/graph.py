@@ -1,4 +1,5 @@
 from langgraph.graph import END, START, StateGraph
+from langgraph.pregel import RetryPolicy
 
 from graph.nodes import (
     convert_to_html,
@@ -12,10 +13,12 @@ from graph.state import State
 
 graph = StateGraph(State)
 
+llm_retry = RetryPolicy(max_attempts=5, initial_interval=60, backoff_factor=2)
+
 graph.add_node("fetch_rss", fetch_rss)
 graph.add_node("extract_things_happen", extract_things_happen)
-graph.add_node("translate_things_happen", translate_things_happen)
-graph.add_node("translate_body", translate_body)
+graph.add_node("translate_things_happen", translate_things_happen, retry=llm_retry)
+graph.add_node("translate_body", translate_body, retry=llm_retry)
 graph.add_node("convert_to_html", convert_to_html)
 graph.add_node("publish_to_pages", publish_to_pages)
 
