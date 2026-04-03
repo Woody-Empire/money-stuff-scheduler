@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, APIRouter, HTTPException
-from fastapi.responses import HTMLResponse, FileResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 BJT = timezone(timedelta(hours=8))
 
 app = FastAPI(title="Money Stuff")
-app.mount("/money-stuff/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-router = APIRouter(prefix="/money-stuff")
+router = APIRouter()
 
 # --- Task Manager ---
 tasks: dict[str, dict] = {}
@@ -171,11 +171,6 @@ async def get_article(article_id: str):
 
 
 app.include_router(router)
-
-
-@app.get("/")
-async def root():
-    return RedirectResponse(url="/money-stuff/")
 
 
 if __name__ == "__main__":
