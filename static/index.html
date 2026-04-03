@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Money Stuff</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #e8f5e9;
+      --accent-text: #4a8c50;
+      --accent-border: #a5d6a7;
+      --accent-solid: #66bb6a;
+      --bg: #ffffff;
+      --bg-secondary: #f6f7f9;
+      --border: #eaedf2;
+      --border-hover: #d4dae4;
+      --text: #1c1e21;
+      --text-secondary: #6e7681;
+      --text-tertiary: #9da5b0;
+      --font-ui: "Manrope", -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-ui);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── Top accent bar ── */
+    .accent-bar {
+      height: 2px;
+      background: var(--accent-border);
+      position: sticky;
+      top: 0;
+      z-index: 101;
+    }
+
+    /* ── Header ── */
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+      position: sticky;
+      top: 2px;
+      background: var(--bg);
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .header h1 {
+      font-family: var(--font-ui);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      white-space: nowrap;
+      cursor: pointer;
+      color: var(--text);
+    }
+    .header h1 span {
+      color: var(--accent-text);
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ── Mobile menu toggle ── */
+    .menu-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all 0.12s;
+    }
+    .menu-toggle:hover { background: var(--bg-secondary); }
+    .menu-toggle svg { display: block; }
+
+    /* ── Buttons ── */
+    .btn {
+      font-family: var(--font-ui);
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-secondary);
+      transition: all 0.12s;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--bg-secondary); color: var(--text); border-color: var(--border-hover); }
+    .btn-primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent-border); }
+    .btn-primary:hover { background: var(--accent-border); color: var(--accent-text); border-color: var(--accent-border); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* ── List-only view ── */
+    .main-list {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    .main-list.hidden { display: none; }
+
+    /* ── Reading layout (two-column) ── */
+    .reading-layout {
+      display: none;
+      max-width: 1100px;
+      margin: 0 auto;
+      height: calc(100vh - 55px);
+    }
+    .reading-layout.active { display: flex; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+      padding: 4px 0;
+      background: var(--bg);
+    }
+    .sidebar-item {
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      transition: all 0.1s;
+      border-left: 2px solid transparent;
+    }
+    .sidebar-item:hover { background: var(--bg-secondary); color: var(--text-secondary); }
+    .sidebar-item.active {
+      background: var(--accent);
+      color: var(--accent-text);
+      font-weight: 600;
+      border-left-color: var(--accent-solid);
+    }
+    .sidebar-date { font-variant-numeric: tabular-nums; letter-spacing: -0.2px; }
+    .sidebar-date-header {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: all 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .sidebar-date-header:hover { background: var(--bg-secondary); }
+    .sidebar-date-header.has-active { border-left-color: var(--accent-solid); }
+    .sidebar-chevron {
+      display: inline-block; width: 14px; height: 14px; flex-shrink: 0;
+      transition: transform 0.2s ease;
+      color: var(--text-tertiary);
+      margin-right: 2px;
+    }
+    .sidebar-date-header.expanded .sidebar-chevron { transform: rotate(90deg); }
+    .sidebar-sub-list {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.25s ease;
+    }
+    .sidebar-sub-list.open { max-height: 500px; }
+    .sidebar-sub-item {
+      padding: 6px 16px 6px 32px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-tertiary);
+      transition: all 0.1s;
+      border-left: 2px solid transparent;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sidebar-sub-item:hover { background: var(--bg-secondary); color: var(--text-secondary); }
+    .sidebar-sub-item.active {
+      background: var(--accent);
+      color: var(--accent-text);
+      font-weight: 600;
+      border-left-color: var(--accent-solid);
+    }
+
+    /* Detail panel */
+    .detail-panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 32px 40px;
+      min-width: 0;
+      background: var(--bg);
+    }
+
+    /* ── Article list items ── */
+    .article-list { list-style: none; }
+    .article-item {
+      padding: 14px 16px;
+      margin-bottom: 1px;
+      cursor: pointer;
+      transition: all 0.1s;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+    .article-item:first-child { border-top: 1px solid var(--border); }
+    .article-item:hover { background: var(--accent); }
+    .article-date { font-size: 12px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; font-weight: 500; }
+    .article-title { font-size: 15px; font-weight: 500; margin-top: 2px; color: var(--text); }
+    .article-count { font-size: 11px; color: var(--accent-text); background: var(--accent); padding: 1px 7px; border-radius: 10px; margin-left: 8px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .article-date-row { display: flex; align-items: center; }
+    .article-chevron {
+      display: inline-block; width: 16px; height: 16px; margin-right: 4px; flex-shrink: 0;
+      transition: transform 0.2s ease;
+      color: var(--text-tertiary);
+    }
+    .article-item.expanded .article-chevron { transform: rotate(90deg); }
+    .article-sub-list {
+      list-style: none;
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.25s ease;
+    }
+    .article-sub-list.open { max-height: 500px; }
+    .article-sub-item {
+      padding: 10px 16px 10px 36px;
+      cursor: pointer;
+      transition: all 0.1s;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    .article-sub-item:hover { background: var(--accent); color: var(--accent-text); }
+    .article-sub-item:last-child { border-bottom: none; }
+    .empty-state { text-align: center; padding: 80px 0; color: var(--text-tertiary); font-size: 14px; }
+
+    /* ── Article content ── */
+    .article-content { font-size: 15px; line-height: 1.85; color: var(--text); }
+    .article-content h1 { font-size: 24px; font-weight: 700; margin: 32px 0 14px; line-height: 1.35; color: var(--text); }
+    .article-content h2 { font-size: 18px; font-weight: 600; margin: 28px 0 10px; line-height: 1.4; color: var(--accent-text); }
+    .article-content h3 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; line-height: 1.4; color: var(--text); }
+    .article-content p { margin: 6px 0; }
+    .article-content ul, .article-content ol { margin: 6px 0; padding-left: 22px; }
+    .article-content li { margin: 4px 0; }
+    .article-content blockquote {
+      border-left: 2px solid var(--accent-border);
+      padding: 6px 16px;
+      margin: 12px 0;
+      color: var(--text-secondary);
+      background: var(--accent);
+    }
+    .article-content a { color: var(--accent-text); text-decoration: none; }
+    .article-content a:hover { text-decoration: underline; text-underline-offset: 2px; }
+    .article-content hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(28, 30, 33, 0.15);
+      z-index: 200;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: var(--bg);
+      border-radius: 6px;
+      width: 92%;
+      max-width: 560px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      animation: modalIn 0.12s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .modal-header {
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-header h2 { font-size: 15px; font-weight: 600; }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      padding: 0 4px;
+      transition: color 0.1s;
+      line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { overflow-y: auto; padding: 14px 20px; flex: 1; }
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ── Pending items ── */
+    .pending-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+    .pending-item:last-child { border-bottom: none; }
+    .pending-item input[type="checkbox"] { margin-top: 3px; width: 15px; height: 15px; accent-color: var(--accent-solid); flex-shrink: 0; }
+    .pending-info { flex: 1; min-width: 0; }
+    .pending-title { font-size: 14px; font-weight: 500; }
+    .pending-meta { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+    .pending-tag { font-size: 10px; color: #fff; padding: 1px 6px; border-radius: 3px; line-height: 1.4; flex-shrink: 0; }
+    .pending-tag.translated { background: #e25555; }
+    .pending-tag.translating { background: #e2a828; }
+    .pending-summary { font-size: 12px; color: var(--text-secondary); margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .select-all-row { display: flex; align-items: center; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 2px; }
+    .select-all-row label { font-size: 13px; color: var(--text-secondary); cursor: pointer; font-weight: 500; }
+
+    /* ── Task items ── */
+    .task-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); gap: 10px; }
+    .task-item:last-child { border-bottom: none; }
+    .task-info { flex: 1; min-width: 0; }
+    .task-title { font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .task-date { font-size: 12px; color: var(--text-tertiary); margin-top: 1px; }
+    .task-error { font-size: 11px; color: #c25450; margin-top: 4px; word-break: break-all; }
+    .task-status { font-size: 11px; padding: 2px 8px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; font-weight: 600; }
+    .task-status.pending { background: var(--bg-secondary); color: var(--text-tertiary); }
+    .task-status.running { background: var(--accent); color: var(--accent-text); }
+    .task-status.completed { background: #eef6ee; color: #4a8c50; }
+    .task-status.failed { background: #fbeded; color: #c25450; }
+    .task-status.cancelled { background: #fff3e0; color: #e65100; }
+    .task-clear { font-size: 13px; color: var(--text-tertiary); cursor: pointer; border: none; background: none; padding: 2px 4px; flex-shrink: 0; transition: color 0.1s; }
+    .task-clear:hover { color: var(--text); }
+    .task-empty { text-align: center; padding: 32px 0; color: var(--text-tertiary); font-size: 13px; }
+
+    /* ── Custom date picker ── */
+    .dp-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .dp-popup {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 300;
+      background: var(--bg);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      padding: 16px;
+      width: 280px;
+      display: none;
+    }
+    .dp-popup.show {
+      display: block;
+      animation: dpEnter 0.1s ease;
+    }
+    @keyframes dpEnter {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dp-nav-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .dp-month-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .dp-nav-btns { display: flex; gap: 2px; }
+    .dp-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: var(--text-tertiary);
+      font-size: 16px;
+      transition: all 0.1s;
+    }
+    .dp-arrow:hover { background: var(--bg-secondary); color: var(--text); }
+
+    .dp-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .dp-weekdays span {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-tertiary);
+      padding: 4px 0;
+    }
+
+    .dp-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+    }
+    .dp-day {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 34px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text);
+      transition: all 0.08s;
+      font-family: var(--font-ui);
+    }
+    .dp-day:hover { background: var(--accent); color: var(--accent-text); }
+    .dp-day.today {
+      background: var(--accent);
+      color: var(--accent-text);
+      font-weight: 700;
+    }
+    .dp-day.selected {
+      background: var(--accent-solid);
+      color: #fff;
+    }
+    .dp-day.selected:hover { background: var(--accent-text); }
+    .dp-day.other-month { color: var(--text-tertiary); opacity: 0.5; }
+    .dp-day.other-month:hover { background: var(--bg-secondary); opacity: 0.8; color: var(--text-secondary); }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 13px; height: 13px;
+      border: 1.5px solid var(--accent-border);
+      border-top-color: var(--accent-solid);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+      margin-right: 5px;
+    }
+    .spinner-white { border-color: rgba(255,255,255,0.25); border-top-color: #fff; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      background: var(--text);
+      color: #fff;
+      padding: 8px 22px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 400;
+      opacity: 0;
+      transition: all 0.2s ease;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Date picker backdrop (mobile) ── */
+    .dp-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(28, 30, 33, 0.12);
+      z-index: 299;
+      display: none;
+    }
+    .dp-backdrop.show { display: block; }
+
+    /* ══ Mobile responsive ══ */
+    @media (max-width: 768px) {
+      .header-inner { padding: 0 16px; }
+
+      .menu-toggle { display: flex; }
+
+      .header-actions {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        padding: 10px 16px;
+        gap: 4px;
+      }
+      .header-actions.open { display: flex; }
+      .header-actions .btn { width: 100%; text-align: center; padding: 10px 16px; font-size: 14px; }
+      .header-actions .dp-wrapper { width: 100%; }
+      .header-actions .dp-wrapper .btn { width: 100%; }
+
+      .main-list { padding: 12px 16px; }
+      .article-item { padding: 12px 14px; }
+      .article-title { font-size: 14px; }
+      .article-sub-item { padding: 10px 14px 10px 32px; font-size: 13px; }
+
+      /* Reading: stack vertically */
+      .reading-layout.active { flex-direction: column; height: auto; min-height: calc(100vh - 55px); }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        max-height: none;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 8px 12px;
+        gap: 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .sidebar::-webkit-scrollbar { display: none; }
+      .sidebar .sidebar-group { display: contents; }
+      .sidebar .sidebar-sub-list { display: none; }
+      .sidebar .sidebar-item,
+      .sidebar .sidebar-date-header {
+        flex-shrink: 0;
+        padding: 5px 12px;
+        border-radius: 3px;
+        border-left: none;
+        font-size: 12px;
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        white-space: nowrap;
+      }
+      .sidebar .sidebar-item:hover,
+      .sidebar .sidebar-date-header:hover { background: var(--accent); }
+      .sidebar .sidebar-item.active {
+        background: var(--accent);
+        color: var(--accent-text);
+        font-weight: 600;
+        border-left-color: transparent;
+      }
+      .sidebar .sidebar-date-header.has-active {
+        background: var(--accent);
+        color: var(--accent-text);
+        border-left: none;
+      }
+      .sidebar .sidebar-date-header .sidebar-chevron {
+        width: 12px; height: 12px;
+      }
+      .detail-panel { padding: 20px 16px; }
+
+      /* Modal */
+      .modal { width: 96%; max-height: 85vh; }
+      .modal-body { padding: 10px 16px; }
+      .modal-header { padding: 14px 16px; }
+      .modal-footer { padding: 10px 16px; }
+
+      /* Date picker → bottom sheet */
+      .dp-popup {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        border-radius: 8px 8px 0 0;
+        padding: 20px;
+        padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+        border: none;
+        border-top: 1px solid var(--border);
+      }
+      .dp-popup.show {
+        animation: dpSlideUp 0.2s ease;
+      }
+      @keyframes dpSlideUp {
+        from { opacity: 0; transform: translateY(100%); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .dp-day { height: 40px; font-size: 14px; }
+      .dp-month-label { font-size: 15px; }
+
+      .toast { bottom: 16px; font-size: 12px; }
+    }
+
+    @media (max-width: 380px) {
+      .header h1 { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="accent-bar"></div>
+
+<div class="header">
+  <div class="header-inner">
+    <h1 onclick="showList()"><span>Money</span> Stuff</h1>
+    <button class="menu-toggle" onclick="toggleMenu()" aria-label="菜单">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+        <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+      </svg>
+    </button>
+    <div class="header-actions" id="headerActions">
+      <div class="dp-wrapper" id="dpWrapperFilter">
+        <button class="btn" onclick="openDatePicker('filter')">筛选日期</button>
+      </div>
+      <button class="btn btn-primary" id="fetchTodayBtn" onclick="fetchToday()">获取当日内容</button>
+      <div class="dp-wrapper" id="dpWrapperFetch">
+        <button class="btn" onclick="openDatePicker('fetch')">按日期获取</button>
+      </div>
+      <button class="btn" onclick="openTaskPanel()">任务列表</button>
+    </div>
+  </div>
+</div>
+
+<!-- Date picker backdrop (mobile) -->
+<div class="dp-backdrop" id="dpBackdrop" onclick="closeDatePicker()"></div>
+
+<!-- List-only view -->
+<div class="main-list" id="mainList">
+  <ul class="article-list" id="articleList"></ul>
+  <div class="empty-state" id="emptyState" style="display:none;">暂无文章</div>
+</div>
+
+<!-- Reading view (two-column) -->
+<div class="reading-layout" id="readingLayout">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="detail-panel" id="detailPanel">
+    <div class="article-content" id="articleContent"></div>
+  </div>
+</div>
+
+<!-- Selection modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeOverlay(event, 'modalOverlay')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>选择要翻译的内容</h2>
+      <button class="modal-close" onclick="closeById('modalOverlay')">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <span id="selectedCount" style="font-size:14px;color:var(--gray-400);">已选 0 条</span>
+      <button class="btn btn-primary" id="translateBtn" onclick="translateSelected()">开始翻译</button>
+    </div>
+  </div>
+</div>
+
+<!-- Task list modal -->
+<div class="modal-overlay" id="taskOverlay" onclick="closeOverlay(event, 'taskOverlay')">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>翻译任务</h2>
+      <button class="modal-close" onclick="closeTaskPanel()">&times;</button>
+    </div>
+    <div class="modal-body" id="taskBody">
+      <div class="task-empty">暂无任务</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+  let allArticles = [];   // [{id, date, title}, ...]
+  let pendingEntries = [];
+  let currentArticleId = null;
+  let pollTimer = null;
+
+  /* ── Date picker state ── */
+  let dpMode = null;
+  let dpYear = 0;
+  let dpMonth = 0;
+  let dpPopupEl = null;
+
+  const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六'];
+
+  loadArticles();
+
+  /* ══ Articles ══ */
+  function groupByDate(articles) {
+    const map = new Map();
+    for (const a of articles) {
+      if (!map.has(a.date)) map.set(a.date, []);
+      map.get(a.date).push(a);
+    }
+    return map;
+  }
+
+  async function loadArticles() {
+    try {
+      const res = await fetch('/money-stuff/api/articles');
+      allArticles = await res.json();
+      renderArticles(allArticles);
+      if (currentArticleId) renderSidebar();
+    } catch (e) {
+      showToast('加载文章列表失败');
+    }
+  }
+
+  function renderArticles(articles) {
+    const list = document.getElementById('articleList');
+    const empty = document.getElementById('emptyState');
+    if (!articles.length) {
+      list.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    const grouped = groupByDate(articles);
+    let html = '';
+    for (const [date, items] of grouped) {
+      if (items.length === 1) {
+        html += `
+          <li class="article-item" onclick="openArticle('${items[0].id}')">
+            <div class="article-date">${date}</div>
+            <div class="article-title">${escapeHtml(items[0].title)}</div>
+          </li>`;
+      } else {
+        const uid = date.replace(/-/g, '');
+        html += `
+          <li class="article-item" id="ag_${uid}" onclick="toggleDateGroup('${uid}')">
+            <div class="article-date-row">
+              <svg class="article-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+              <div>
+                <div class="article-date">${date}<span class="article-count">${items.length} 篇</span></div>
+                <div class="article-title">Money Stuff — ${date}</div>
+              </div>
+            </div>
+          </li>
+          <ul class="article-sub-list" id="asl_${uid}">
+            ${items.map(a => `<li class="article-sub-item" onclick="event.stopPropagation(); openArticle('${a.id}')">${escapeHtml(a.title)}</li>`).join('')}
+          </ul>`;
+      }
+    }
+    list.innerHTML = html;
+  }
+
+  function toggleDateGroup(uid) {
+    const item = document.getElementById('ag_' + uid);
+    const sub = document.getElementById('asl_' + uid);
+    if (!item || !sub) return;
+    item.classList.toggle('expanded');
+    sub.classList.toggle('open');
+  }
+
+  /* ══ Mobile menu ══ */
+  function toggleMenu() {
+    document.getElementById('headerActions').classList.toggle('open');
+  }
+
+  /* ══ Custom date picker ══ */
+  function openDatePicker(mode) {
+    closeDatePicker();
+    dpMode = mode;
+    const now = new Date();
+    dpYear = now.getFullYear();
+    dpMonth = now.getMonth();
+
+    const wrapperId = mode === 'filter' ? 'dpWrapperFilter' : 'dpWrapperFetch';
+    const wrapper = document.getElementById(wrapperId);
+
+    dpPopupEl = document.createElement('div');
+    dpPopupEl.className = 'dp-popup show';
+    dpPopupEl.onclick = function(e) { e.stopPropagation(); };
+    wrapper.appendChild(dpPopupEl);
+
+    if (window.innerWidth <= 768) {
+      document.getElementById('dpBackdrop').classList.add('show');
+    }
+
+    renderCalendar();
+  }
+
+  function closeDatePicker() {
+    if (dpPopupEl) { dpPopupEl.remove(); dpPopupEl = null; }
+    dpMode = null;
+    document.getElementById('dpBackdrop').classList.remove('show');
+  }
+
+  function renderCalendar() {
+    if (!dpPopupEl) return;
+    const today = new Date();
+    const todayStr = fmtDate(today.getFullYear(), today.getMonth(), today.getDate());
+
+    const firstDow = new Date(dpYear, dpMonth, 1).getDay();
+    const daysInMonth = new Date(dpYear, dpMonth + 1, 0).getDate();
+    const daysInPrev = new Date(dpYear, dpMonth, 0).getDate();
+
+    let html = `
+      <div class="dp-nav-row">
+        <span class="dp-month-label">${dpYear}年 ${dpMonth + 1}月</span>
+        <div class="dp-nav-btns">
+          <button class="dp-arrow" onclick="dpNav(-1)" aria-label="上月">&#8249;</button>
+          <button class="dp-arrow" onclick="dpNav(1)" aria-label="下月">&#8250;</button>
+        </div>
+      </div>
+      <div class="dp-weekdays">
+        ${WEEKDAYS.map(d => `<span>${d}</span>`).join('')}
+      </div>
+      <div class="dp-days">
+    `;
+
+    /* Previous month trailing days */
+    for (let i = firstDow - 1; i >= 0; i--) {
+      const d = daysInPrev - i;
+      const prevM = dpMonth - 1;
+      const y = prevM < 0 ? dpYear - 1 : dpYear;
+      const m = prevM < 0 ? 11 : prevM;
+      html += `<button class="dp-day other-month" onclick="dpSelect(${y},${m},${d})">${d}</button>`;
+    }
+
+    /* Current month */
+    for (let d = 1; d <= daysInMonth; d++) {
+      const ds = fmtDate(dpYear, dpMonth, d);
+      const cls = [];
+      if (ds === todayStr) cls.push('today');
+      html += `<button class="dp-day ${cls.join(' ')}" onclick="dpSelect(${dpYear},${dpMonth},${d})">${d}</button>`;
+    }
+
+    /* Next month leading days */
+    const totalCells = firstDow + daysInMonth;
+    const remaining = (7 - totalCells % 7) % 7;
+    for (let d = 1; d <= remaining; d++) {
+      const nextM = dpMonth + 1;
+      const y = nextM > 11 ? dpYear + 1 : dpYear;
+      const m = nextM > 11 ? 0 : nextM;
+      html += `<button class="dp-day other-month" onclick="dpSelect(${y},${m},${d})">${d}</button>`;
+    }
+
+    html += '</div>';
+    dpPopupEl.innerHTML = html;
+  }
+
+  function dpNav(delta) {
+    dpMonth += delta;
+    if (dpMonth > 11) { dpMonth = 0; dpYear++; }
+    if (dpMonth < 0) { dpMonth = 11; dpYear--; }
+    renderCalendar();
+  }
+
+  function dpSelect(y, m, d) {
+    const dateStr = fmtDate(y, m, d);
+
+    if (dpMode === 'filter') {
+      const matched = allArticles.filter(a => a.date === dateStr);
+      if (currentArticleId) {
+        if (matched.length === 1) openArticle(matched[0].id);
+        else if (matched.length > 1) { showList(); renderArticles(matched); }
+        else showToast('该日期暂无文章');
+      } else {
+        renderArticles(matched);
+        if (!matched.length) showToast('该日期暂无文章');
+      }
+    } else if (dpMode === 'fetch') {
+      fetchPending(dateStr);
+    }
+
+    closeDatePicker();
+    document.getElementById('headerActions').classList.remove('open');
+  }
+
+  function fmtDate(y, m, d) {
+    return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+  }
+
+  /* Close picker on outside click */
+  document.addEventListener('click', function(e) {
+    if (dpPopupEl && !dpPopupEl.contains(e.target) && !e.target.closest('.dp-wrapper')) {
+      closeDatePicker();
+    }
+  });
+
+  /* ══ Reading view ══ */
+  async function openArticle(articleId) {
+    try {
+      const res = await fetch(`/money-stuff/api/articles/${articleId}`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+
+      currentArticleId = articleId;
+      document.getElementById('articleContent').innerHTML = marked.parse(data.markdown);
+
+      document.getElementById('mainList').classList.add('hidden');
+      document.getElementById('readingLayout').classList.add('active');
+
+      renderSidebar();
+      document.getElementById('detailPanel').scrollTop = 0;
+    } catch (e) {
+      showToast('加载文章失败');
+    }
+  }
+
+  function renderSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const grouped = groupByDate(allArticles);
+    let html = '';
+    for (const [date, items] of grouped) {
+      if (items.length === 1) {
+        html += `
+          <div class="sidebar-item ${items[0].id === currentArticleId ? 'active' : ''}" onclick="openArticle('${items[0].id}')">
+            <div class="sidebar-date">${date}</div>
+          </div>`;
+      } else {
+        const hasActive = items.some(a => a.id === currentArticleId);
+        const uid = date.replace(/-/g, '');
+        const expanded = hasActive ? ' expanded' : '';
+        const open = hasActive ? ' open' : '';
+        html += `<div class="sidebar-group${hasActive ? ' expanded' : ''}">`;
+        html += `<div class="sidebar-date-header${expanded} ${hasActive ? 'has-active' : ''}" onclick="toggleSidebarGroup('${uid}')">
+            <svg class="sidebar-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>
+            <span class="sidebar-date">${date}</span><span class="article-count">${items.length}</span>
+          </div>`;
+        html += `<div class="sidebar-sub-list${open}" id="ssl_${uid}">`;
+        html += items.map(a => `
+            <div class="sidebar-sub-item ${a.id === currentArticleId ? 'active' : ''}" onclick="openArticle('${a.id}')" title="${escapeHtml(a.title)}">
+              ${escapeHtml(a.title)}
+            </div>`).join('');
+        html += `</div></div>`;
+      }
+    }
+    sidebar.innerHTML = html;
+
+    const active = sidebar.querySelector('.sidebar-item.active, .sidebar-sub-item.active');
+    if (active) active.scrollIntoView({ block: 'nearest' });
+  }
+
+  function toggleSidebarGroup(uid) {
+    const sub = document.getElementById('ssl_' + uid);
+    if (!sub) return;
+    const header = sub.previousElementSibling;
+    const group = sub.parentElement;
+    header.classList.toggle('expanded');
+    sub.classList.toggle('open');
+    group.classList.toggle('expanded');
+  }
+
+  function showList() {
+    currentArticleId = null;
+    document.getElementById('readingLayout').classList.remove('active');
+    document.getElementById('mainList').classList.remove('hidden');
+    renderArticles(allArticles);
+  }
+
+  /* ══ Fetch: today ══ */
+  async function fetchToday() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('headerActions').classList.remove('open');
+    await fetchPending(today);
+  }
+
+  async function fetchPending(since) {
+    const btn = document.getElementById('fetchTodayBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner spinner-white"></span>获取中...';
+
+    try {
+      const res = await fetch(`/money-stuff/api/rss/pending?since=${since}`);
+      pendingEntries = await res.json();
+
+      if (!pendingEntries.length) {
+        showToast('暂无新内容');
+        return;
+      }
+
+      showSelectionModal(pendingEntries);
+    } catch (e) {
+      showToast('获取 RSS 失败');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '获取当日内容';
+    }
+  }
+
+  /* ══ Selection modal ══ */
+  function showSelectionModal(entries) {
+    const body = document.getElementById('modalBody');
+    body.innerHTML = `
+      <div class="select-all-row">
+        <input type="checkbox" id="selectAll" onchange="toggleAll()">
+        <label for="selectAll">全选</label>
+      </div>
+      ${entries.map((e, i) => {
+        const tag = e.status === 'translated' ? '<span class="pending-tag translated">已翻译</span>'
+                  : e.status === 'translating' ? '<span class="pending-tag translating">翻译中</span>' : '';
+        return `
+        <div class="pending-item">
+          <input type="checkbox" class="entry-cb" data-index="${i}" onchange="updateCount()">
+          <div class="pending-info">
+            <div class="pending-title">${escapeHtml(e.title)}</div>
+            <div class="pending-meta">${e.published}${tag}</div>
+            <div class="pending-summary">${escapeHtml(e.summary)}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    `;
+    updateCount();
+    document.getElementById('modalOverlay').classList.add('active');
+  }
+
+  function toggleAll() {
+    const checked = document.getElementById('selectAll').checked;
+    document.querySelectorAll('.entry-cb').forEach(cb => cb.checked = checked);
+    updateCount();
+  }
+
+  function updateCount() {
+    const checked = document.querySelectorAll('.entry-cb:checked').length;
+    document.getElementById('selectedCount').textContent = `已选 ${checked} 条`;
+    document.getElementById('translateBtn').disabled = checked === 0;
+  }
+
+  /* ══ Translate ══ */
+  let lastSince = '';
+
+  async function translateSelected() {
+    const btn = document.getElementById('translateBtn');
+    const indices = [...document.querySelectorAll('.entry-cb:checked')].map(cb => +cb.dataset.index);
+    if (!indices.length) return;
+
+    const selectedEntries = indices.map(i => pendingEntries[i]);
+    const since = selectedEntries.reduce((min, e) => e.published < min ? e.published : min, selectedEntries[0].published);
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner spinner-white"></span>提交中...';
+
+    try {
+      const selectedRssIndices = indices.map(i => pendingEntries[i].index);
+
+      const res = await fetch('/money-stuff/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ since, selected_indices: selectedRssIndices }),
+      });
+      const data = await res.json();
+
+      showToast(`已提交 ${data.task_ids.length} 个翻译任务`);
+      closeById('modalOverlay');
+      startPolling();
+    } catch (e) {
+      showToast('提交翻译任务失败');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '开始翻译';
+    }
+  }
+
+  /* ══ Task panel ══ */
+  function openTaskPanel() {
+    document.getElementById('headerActions').classList.remove('open');
+    document.getElementById('taskOverlay').classList.add('active');
+    refreshTasks();
+    startPolling();
+  }
+
+  function closeTaskPanel() {
+    document.getElementById('taskOverlay').classList.remove('active');
+    stopPolling();
+  }
+
+  function startPolling() {
+    stopPolling();
+    refreshTasks();
+    pollTimer = setInterval(refreshTasks, 3000);
+  }
+
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+
+  const STATUS_LABEL = { pending: '等待中', running: '翻译中', completed: '已完成', failed: '失败', cancelled: '已取消' };
+
+  async function refreshTasks() {
+    try {
+      const res = await fetch('/money-stuff/api/tasks');
+      const tasks = await res.json();
+      renderTasks(tasks);
+
+      const hasActive = tasks.some(t => t.status === 'pending' || t.status === 'running');
+      if (!hasActive && tasks.length > 0) {
+        stopPolling();
+        await loadArticles();
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function renderTasks(tasks) {
+    const body = document.getElementById('taskBody');
+    if (!tasks.length) {
+      body.innerHTML = '<div class="task-empty">暂无任务</div>';
+      return;
+    }
+    body.innerHTML = tasks.map(t => `
+      <div class="task-item">
+        <div class="task-info">
+          <div class="task-title">${escapeHtml(t.title)}</div>
+          <div class="task-date">${t.date}</div>
+          ${t.status === 'failed' && t.error ? `<div class="task-error">${escapeHtml(t.error)}</div>` : ''}
+        </div>
+        <span class="task-status ${t.status}">
+          ${t.status === 'running' ? '<span class="spinner" style="width:10px;height:10px;margin-right:4px;border-width:1.5px;"></span>' : ''}${STATUS_LABEL[t.status]}
+        </span>
+        ${t.status === 'pending' || t.status === 'running' ? `<button class="task-clear" onclick="cancelTask('${t.id}')" title="取消">&#9632;</button>` : ''}
+        ${t.status === 'completed' || t.status === 'failed' || t.status === 'cancelled' ? `<button class="task-clear" onclick="clearTask('${t.id}')">&times;</button>` : ''}
+      </div>
+    `).join('');
+  }
+
+  async function cancelTask(id) {
+    try {
+      await fetch(`/money-stuff/api/tasks/${id}/cancel`, { method: 'POST' });
+      refreshTasks();
+    } catch (e) { /* ignore */ }
+  }
+
+  async function clearTask(id) {
+    try {
+      await fetch(`/money-stuff/api/tasks/${id}`, { method: 'DELETE' });
+      refreshTasks();
+    } catch (e) { /* ignore */ }
+  }
+
+  /* ══ Utils ══ */
+  function closeById(id) { document.getElementById(id).classList.remove('active'); }
+  function closeOverlay(e, id) { if (e.target === e.currentTarget) closeById(id); }
+
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+</script>
+</body>
+</html>

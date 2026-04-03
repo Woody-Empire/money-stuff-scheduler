@@ -9,5 +9,5 @@ class State(TypedDict):
     things_happen_translation: str
     body_translation: str
     markdown_content: str
-    html_content: str
-    subject: str
+    date: str
+    title: str

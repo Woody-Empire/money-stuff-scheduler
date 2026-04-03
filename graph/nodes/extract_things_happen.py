@@ -15,7 +15,7 @@ def _html_to_text(s: str) -> str:
     return s
 
 
-def extract_things_happen(state: State) -> dict:
+async def extract_things_happen(state: State) -> dict:
     html = state["rss_content"]
 
     marker = "Things happen</h2>"
