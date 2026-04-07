@@ -789,16 +789,17 @@
     dpYear = now.getFullYear();
     dpMonth = now.getMonth();
 
-    const wrapperId = mode === 'filter' ? 'dpWrapperFilter' : 'dpWrapperFetch';
-    const wrapper = document.getElementById(wrapperId);
-
     dpPopupEl = document.createElement('div');
     dpPopupEl.className = 'dp-popup show';
     dpPopupEl.onclick = function(e) { e.stopPropagation(); };
-    wrapper.appendChild(dpPopupEl);
 
     if (window.innerWidth <= 768) {
+      document.body.appendChild(dpPopupEl);
       document.getElementById('dpBackdrop').classList.add('show');
+    } else {
+      const wrapperId = mode === 'filter' ? 'dpWrapperFilter' : 'dpWrapperFetch';
+      const wrapper = document.getElementById(wrapperId);
+      wrapper.appendChild(dpPopupEl);
     }
 
     renderCalendar();
